@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "target": "es5",
+    "paths": {
+      "*": ["./src/type/*"]
+    },
     "lib": [
       "dom",
       "dom.iterable",
