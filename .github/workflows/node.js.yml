@@ -13,23 +13,22 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
+    - name: AWS DEV ENV
+      if: contains(toJSON(github.ref), 'develop') || contains(toJSON(github.ref), 'feature') || github.event_name == 'pull_request'
+      run: |
+        echo FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT_GOEN_DEV_NEW }} >> $GITHUB_ENV
 
-      - name: AWS DEV ENV
-        if: contains(toJSON(github.ref), 'develop') || contains(toJSON(github.ref), 'feature') || github.event_name == 'pull_request'
-        run: |
-          echo FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT_GOEN_DEV_NEW }} >> $GITHUB_ENV
+    - name: AWS Production ENV
+      if: contains(toJSON(github.ref), 'master')
+      run: |
+        echo FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT_GOEN_DEV_NEW }} >> $GITHUB_ENV
 
-      - name: AWS Production ENV
-        if: contains(toJSON(github.ref), 'master')
-        run: |
-          echo FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT_GOEN_DEV_NEW }} >> $GITHUB_ENV
-
-      - uses: actions/checkout@v2
-      - run: npm ci && npm run build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        if: (github.ref == 'refs/heads/master' ||  github.ref == 'refs/heads/develop') && github.event_name == 'push'
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN}}'
-          firebaseServiceAccount: '${{ env.FIREBASE_SERVICE_ACCOUNT}}'
-          channelId: live
-          projectId: goen-dev-new
+    - uses: actions/checkout@v2
+    - run: npm ci && npm run build
+    - uses: FirebaseExtended/action-hosting-deploy@v0
+      if: (github.ref == 'refs/heads/master' ||  github.ref == 'refs/heads/develop') && github.event_name == 'push'
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN}}'
+        firebaseServiceAccount: '${{ env.FIREBASE_SERVICE_ACCOUNT}}'
+        channelId: live
+        projectId: goen-dev-new
